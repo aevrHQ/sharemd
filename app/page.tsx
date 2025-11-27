@@ -281,7 +281,7 @@ export default function Home() {
             {generatedLinks.length > 0 && (
               <div className="space-y-4">
                 {generatedLinks.length > 1 && (
-                  <div className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
+                  <div className="flex flex-wrap items-center gap-2 rounded-xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
                     <input
                       type="text"
                       value={groupName}
@@ -289,23 +289,25 @@ export default function Home() {
                       placeholder="Group Name"
                       className="flex-1 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
                     />
-                    <Button onClick={handleCreateGroup}>
+                    <Button className="max-sm:grow" onClick={handleCreateGroup}>
                       {isGrouping ? "Grouping..." : "Create Group"}
                     </Button>
                   </div>
                 )}
 
-                <div className="grid gap-4">
+                <div className="flex flex-col gap-4">
                   {generatedLinks.map((link) => (
                     <InfoBox
                       key={link.id}
                       type={"success"}
-                      title={link.title}
+                      title={
+                        <span className="block truncate">{link.title}</span>
+                      }
                       description={
                         <Link
                           href={link.url}
                           target="_blank"
-                          className="text-blue-600 hover:underline"
+                          className="block truncate text-blue-600 hover:underline"
                         >
                           {link.url}
                         </Link>

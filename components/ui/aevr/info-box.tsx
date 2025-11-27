@@ -391,7 +391,7 @@ const InfoBox: FC<InfoBoxProps> = ({
         </div>
       )}
 
-      <div className="flex-1">
+      <div className="flex-1 min-w-0 w-full">
         {title && <h3 className={titleVariants({ size })}>{title}</h3>}
         {description && (
           <div className={descriptionVariants({ size })}>{description}</div>
