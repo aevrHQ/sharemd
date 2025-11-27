@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import FileUpload, { UploadedFile } from "@/components/ui/aevr/file-upload";
+import FileUpload from "@/components/ui/aevr/file-upload";
 import { toast } from "sonner";
-import { Copy, Link as LinkIcon } from "iconsax-react";
+import { Copy, Link as LinkIcon, Folder } from "iconsax-react";
 import { useSavedLinks } from "@/hooks/use-saved-links";
 import { Button } from "@/components/ui/aevr/button";
 import { InfoBox } from "@/components/ui/aevr/info-box";
@@ -16,6 +16,10 @@ export default function Home() {
   const [textInput, setTextInput] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [groupName, setGroupName] = useState("");
+  const [createdGroup, setCreatedGroup] = useState<{
+    name: string;
+    count: number;
+  } | null>(null);
   const { saveLink, createGroup } = useSavedLinks();
 
   // We need to construct the provider manually because s3Uploader is an instance,
@@ -66,7 +70,7 @@ export default function Home() {
     }
   };
 
-  const handleFilesChange = (_files: UploadedFile[]) => {
+  const handleFilesChange = () => {
     // We can use this to clear generated links if files are removed,
     // but for now let's just keep them.
     // Or we could sync them.
@@ -122,8 +126,12 @@ export default function Home() {
     }
     const linkIds = generatedLinks.map((l) => l.id);
     createGroup(groupName, linkIds);
+    setCreatedGroup({ name: groupName, count: linkIds.length });
     toast.success(`Group "${groupName}" created!`);
     setGroupName("");
+
+    // Scroll to top or show success message clearly
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
@@ -179,6 +187,32 @@ export default function Home() {
             </button>
           </div>
         </div>
+
+        {createdGroup && (
+          <InfoBox
+            type="success"
+            title={`Group "${createdGroup.name}" Created!`}
+            description={
+              <div className="space-y-2">
+                <p>
+                  Successfully grouped {createdGroup.count} links. You can
+                  access this group anytime from the &quot;My Links&quot; menu
+                  in the top right.
+                </p>
+              </div>
+            }
+            icon={<Folder variant="Bulk" size={24} color="currentColor" />}
+            actions={[
+              <Button
+                key="dismiss"
+                onClick={() => setCreatedGroup(null)}
+                variant="secondary"
+              >
+                Dismiss
+              </Button>,
+            ]}
+          />
+        )}
 
         {generatedLinks.length > 0 && (
           <div className="space-y-4">
