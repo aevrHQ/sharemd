@@ -5,6 +5,9 @@ import FileUpload, { UploadedFile } from "@/components/ui/aevr/file-upload";
 import { toast } from "sonner";
 import { Copy, Link as LinkIcon } from "iconsax-react";
 import { useSavedLinks } from "@/hooks/use-saved-links";
+import { Button } from "@/components/ui/aevr/button";
+import { InfoBox } from "@/components/ui/aevr/info-box";
+import Link from "next/link";
 
 export default function Home() {
   const [generatedLink, setGeneratedLink] = useState<string | null>(null);
@@ -152,28 +155,26 @@ export default function Home() {
         </div>
 
         {generatedLink && (
-          <div className="rounded-xl border border-green-200 bg-green-50 p-6 dark:border-green-900/30 dark:bg-green-900/10">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400">
-                <LinkIcon variant="Bulk" size={24} color="currentColor" />
-              </div>
-              <div className="flex-1 overflow-hidden">
-                <p className="text-sm font-medium text-green-900 dark:text-green-100">
-                  Your link is ready!
-                </p>
-                <p className="truncate text-xs text-green-700 dark:text-green-300">
-                  {generatedLink}
-                </p>
-              </div>
-              <button
-                onClick={copyLink}
-                className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm font-medium text-zinc-700 shadow-sm hover:bg-zinc-50 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+          <InfoBox
+            type={"success"}
+            title="Your link is ready!"
+            description={
+              <Link
+                href={generatedLink}
+                target="_blank"
+                className="text-blue-600 hover:underline"
               >
+                {generatedLink}
+              </Link>
+            }
+            icon={<LinkIcon variant="Bulk" size={24} color="currentColor" />}
+            actions={[
+              <Button key={"copy"} onClick={copyLink} variant={"secondary"}>
                 <Copy size={16} color="currentColor" variant="Bulk" />
                 Copy
-              </button>
-            </div>
-          </div>
+              </Button>,
+            ]}
+          />
         )}
       </div>
     </div>
