@@ -59,42 +59,84 @@ export const useSavedLinks = () => {
   };
 
   // Grouping functions
-  const createGroup = (title: string, linkIds: string[]) => {
-    const newGroup: LinkGroup = {
-      id: `group-${Date.now()}`,
-      title,
-      createdAt: Date.now(),
-      linkIds,
-    };
+  const createGroup = async (title: string, linkIds: string[]) => {
+    try {
+      const response = await fetch("/api/groups", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, linkIds }),
+      });
 
-    setState((prev) => ({
-      links: prev?.links || [],
-      groups: [newGroup, ...(prev?.groups || [])],
-    }));
+      const result = await response.json();
+
+      if (result.success) {
+        const newGroup: LinkGroup = {
+          id: result.data.id,
+          title: result.data.title,
+          createdAt: new Date(result.data.createdAt).getTime(),
+          linkIds: result.data.linkIds,
+        };
+
+        setState((prev) => ({
+          links: prev?.links || [],
+          groups: [newGroup, ...(prev?.groups || [])],
+        }));
+        return newGroup;
+      }
+    } catch (error) {
+      console.error("Failed to create group", error);
+    }
   };
 
-  const deleteGroup = (groupId: string) => {
-    setState((prev) => ({
-      links: prev?.links || [],
-      groups: (prev?.groups || []).filter((group) => group.id !== groupId),
-    }));
+  const deleteGroup = async (groupId: string) => {
+    try {
+      // Optimistic update
+      setState((prev) => ({
+        links: prev?.links || [],
+        groups: (prev?.groups || []).filter((group) => group.id !== groupId),
+      }));
+
+      // If it's a server-side group (mongo ID), delete it from server
+      if (!groupId.startsWith("group-")) {
+        await fetch(`/api/groups/${groupId}`, {
+          method: "DELETE",
+        });
+      }
+    } catch (error) {
+      console.error("Failed to delete group", error);
+    }
   };
 
-  const addToGroup = (groupId: string, linkIds: string[]) => {
+  const addToGroup = async (groupId: string, linkIds: string[]) => {
+    // Optimistic update
     setState((prev) => ({
       links: prev?.links || [],
       groups: (prev?.groups || []).map((group) => {
         if (group.id === groupId) {
-          // Add only unique new IDs
           const newIds = linkIds.filter((id) => !group.linkIds.includes(id));
           return { ...group, linkIds: [...group.linkIds, ...newIds] };
         }
         return group;
       }),
     }));
+
+    // Server update
+    if (!groupId.startsWith("group-")) {
+      const group = groups.find((g) => g.id === groupId);
+      if (group) {
+        const currentIds = group.linkIds;
+        const newIds = linkIds.filter((id) => !currentIds.includes(id));
+        await fetch(`/api/groups/${groupId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ linkIds: [...currentIds, ...newIds] }),
+        });
+      }
+    }
   };
 
-  const removeFromGroup = (groupId: string, linkId: string) => {
+  const removeFromGroup = async (groupId: string, linkId: string) => {
+    // Optimistic update
     setState((prev) => ({
       links: prev?.links || [],
       groups: (prev?.groups || []).map((group) => {
@@ -107,6 +149,19 @@ export const useSavedLinks = () => {
         return group;
       }),
     }));
+
+    // Server update
+    if (!groupId.startsWith("group-")) {
+      const group = groups.find((g) => g.id === groupId);
+      if (group) {
+        const newIds = group.linkIds.filter((id) => id !== linkId);
+        await fetch(`/api/groups/${groupId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ linkIds: newIds }),
+        });
+      }
+    }
   };
 
   return {

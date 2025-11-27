@@ -19,6 +19,7 @@ export default function Home() {
   const [createdGroup, setCreatedGroup] = useState<{
     name: string;
     count: number;
+    id?: string;
   } | null>(null);
   const { saveLink, createGroup } = useSavedLinks();
 
@@ -119,19 +120,26 @@ export default function Home() {
     toast.success("Link copied to clipboard!");
   };
 
-  const handleCreateGroup = () => {
+  const handleCreateGroup = async () => {
     if (!groupName.trim()) {
       toast.error("Please enter a group name");
       return;
     }
     const linkIds = generatedLinks.map((l) => l.id);
-    createGroup(groupName, linkIds);
-    setCreatedGroup({ name: groupName, count: linkIds.length });
-    toast.success(`Group "${groupName}" created!`);
-    setGroupName("");
+    const newGroup = await createGroup(groupName, linkIds);
 
-    // Scroll to top or show success message clearly
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (newGroup) {
+      setCreatedGroup({
+        name: groupName,
+        count: linkIds.length,
+        id: newGroup.id,
+      });
+      toast.success(`Group "${groupName}" created!`);
+      setGroupName("");
+
+      // Scroll to top or show success message clearly
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   return (
@@ -199,6 +207,30 @@ export default function Home() {
                   access this group anytime from the &quot;My Links&quot; menu
                   in the top right.
                 </p>
+                {createdGroup.id && (
+                  <div className="mt-2 rounded-lg bg-zinc-100 p-2 dark:bg-zinc-800">
+                    <p className="text-xs font-medium text-zinc-500">
+                      Shareable Link:
+                    </p>
+                    <div className="mt-1 flex items-center gap-2">
+                      <code className="flex-1 truncate text-xs text-zinc-700 dark:text-zinc-300">
+                        {window.location.origin}/group/{createdGroup.id}
+                      </code>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => {
+                          navigator.clipboard.writeText(
+                            `${window.location.origin}/group/${createdGroup.id}`
+                          );
+                          toast.success("Group link copied!");
+                        }}
+                      >
+                        <Copy size={14} variant="Bulk" color="currentColor" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
             }
             icon={<Folder variant="Bulk" size={24} color="currentColor" />}

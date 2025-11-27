@@ -144,9 +144,13 @@ const SiteHeader = () => {
                                   color="currentColor"
                                   variant="Bulk"
                                 />
-                                <span className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                                <Link
+                                  href={`/group/${group.id}`}
+                                  className="truncate text-sm font-medium text-zinc-900 hover:underline dark:text-zinc-100"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
                                   {group.title}
-                                </span>
+                                </Link>
                                 <span className="text-xs text-zinc-400">
                                   ({group.linkIds.length})
                                 </span>
