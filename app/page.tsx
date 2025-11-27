@@ -135,13 +135,13 @@ export default function Home() {
             value={textInput}
             onChange={(e) => setTextInput(e.target.value)}
             placeholder="# Paste your markdown here..."
-            className="h-48 w-full rounded-lg border border-zinc-200 bg-zinc-50 p-4 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+            className="h-48 w-full rounded-lg border border-zinc-200 bg-zinc-50 p-4 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
           />
           <div className="mt-4 flex justify-end">
             <button
               onClick={handleTextUpload}
               disabled={isUploading || !textInput.trim()}
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+              className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
             >
               {isUploading ? "Generating..." : "Generate Link"}
             </button>

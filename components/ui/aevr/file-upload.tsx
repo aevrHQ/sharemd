@@ -250,7 +250,7 @@ const getFileIcon = (fileType: string) => {
   if (fileType.startsWith("image/")) {
     return (
       <ImageIcon
-        className="h-6 w-6 text-blue-500"
+        className="h-6 w-6 text-indigo-500"
         variant="Bulk"
         color="currentColor"
       />
@@ -258,7 +258,7 @@ const getFileIcon = (fileType: string) => {
   }
   return (
     <DocumentText
-      className="h-6 w-6 text-blue-500"
+      className="h-6 w-6 text-indigo-500"
       variant="Bulk"
       color="currentColor"
     />
@@ -456,7 +456,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
         onClick={handleFileSelect}
         className={`relative cursor-pointer rounded-lg border-2 border-dashed p-8 text-center transition-colors ${
           isDragOver
-            ? "border-blue-400 bg-blue-50 dark:border-blue-500 dark:bg-blue-950/20"
+            ? "border-indigo-400 bg-indigo-50 dark:border-indigo-500 dark:bg-indigo-950/20"
             : "border-zinc-300 hover:border-zinc-400 dark:border-zinc-600 dark:hover:border-zinc-500"
         } ${
           uploadedFiles.length > 0
@@ -476,7 +476,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
         <div className="flex flex-col items-center">
           <DocumentUpload
             className={`mx-auto h-12 w-12 ${
-              isDragOver ? "text-blue-500" : "text-zinc-400"
+              isDragOver ? "text-indigo-500" : "text-zinc-400"
             }`}
             variant="Bulk"
             color="currentColor"
@@ -486,7 +486,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
             <p
               className={`text-sm font-medium ${
                 isDragOver
-                  ? "text-blue-600"
+                  ? "text-indigo-600"
                   : "text-zinc-700 dark:text-zinc-300"
               }`}
             >
@@ -513,7 +513,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
         {isUploading && (
           <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-white/80 dark:bg-zinc-800/80">
             <div className="flex items-center gap-2">
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent"></div>
               <span className="text-sm text-zinc-600">Processing files...</span>
             </div>
           </div>
