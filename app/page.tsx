@@ -3,11 +3,12 @@
 import React, { useState } from "react";
 import FileUpload from "@/components/ui/aevr/file-upload";
 import { toast } from "sonner";
-import { Copy, Link as LinkIcon, Folder } from "iconsax-react";
+import { Copy, Link as LinkIcon, Folder, Eye } from "iconsax-react";
 import { useSavedLinks } from "@/hooks/use-saved-links";
 import { Button } from "@/components/ui/aevr/button";
 import { InfoBox } from "@/components/ui/aevr/info-box";
 import Link from "next/link";
+import ResponsiveDialog from "@/components/ui/aevr/responsive-dialog";
 
 export default function Home() {
   const [generatedLinks, setGeneratedLinks] = useState<
@@ -22,6 +23,8 @@ export default function Home() {
     id?: string;
   } | null>(null);
   const [isGrouping, setIsGrouping] = useState(false);
+  const [showGeneratedLinksDialog, setShowGeneratedLinksDialog] =
+    useState(false);
   const { saveLink, createGroup } = useSavedLinks();
 
   // We need to construct the provider manually because s3Uploader is an instance,
@@ -69,6 +72,7 @@ export default function Home() {
         return [...prev, { id, title: file.name, url }];
       });
       saveLink(id, file.name);
+      setShowGeneratedLinksDialog(true);
     }
   };
 
@@ -104,6 +108,7 @@ export default function Home() {
           { id, title: "Untitled Markdown", url },
         ]);
         saveLink(id, "Untitled Markdown");
+        setShowGeneratedLinksDialog(true);
         toast.success("Text uploaded successfully!");
       } else {
         toast.error(result.error || "Failed to upload text");
@@ -199,110 +204,138 @@ export default function Home() {
           </div>
         </div>
 
-        {createdGroup && (
-          <InfoBox
-            type="success"
-            title={`Group "${createdGroup.name}" Created!`}
-            description={
-              <div className="space-y-2">
-                <p>
-                  Successfully grouped {createdGroup.count} links. You can
-                  access this group anytime from the &quot;My Links&quot; menu
-                  in the top right.
-                </p>
-                {createdGroup.id && (
-                  <div className="mt-2 rounded-lg bg-neutral-100 p-2 dark:bg-neutral-800">
-                    <p className="text-xs font-medium text-neutral-500">
-                      Shareable Link:
+        <ResponsiveDialog
+          openPrompt={showGeneratedLinksDialog}
+          onOpenPromptChange={(open) =>
+            setShowGeneratedLinksDialog(open ?? false)
+          }
+          title="Generated Links"
+          description="Here are your shareable links. You can group them for easier sharing."
+        >
+          <div className="space-y-6">
+            {createdGroup && (
+              <InfoBox
+                type="success"
+                title={`Group "${createdGroup.name}" Created!`}
+                description={
+                  <div className="space-y-2">
+                    <p>
+                      Successfully grouped {createdGroup.count} links. You can
+                      access this group anytime from the &quot;My Links&quot;
+                      menu in the top right.
                     </p>
-                    <div className="mt-1 flex items-center gap-2">
-                      <code className="flex-1 truncate text-xs text-neutral-700 dark:text-neutral-300">
-                        {window.location.origin}/group/{createdGroup.id}
-                      </code>
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => {
-                          navigator.clipboard.writeText(
-                            `${window.location.origin}/group/${createdGroup.id}`
-                          );
-                          toast.success("Group link copied!");
-                        }}
-                      >
-                        <Copy size={14} variant="Bulk" color="currentColor" />
-                      </Button>
-                    </div>
+                    {createdGroup.id && (
+                      <div className="mt-2 rounded-lg bg-neutral-100 p-2 dark:bg-neutral-800">
+                        <p className="text-xs font-medium text-neutral-500">
+                          Shareable Link:
+                        </p>
+                        <div className="mt-1 flex items-center gap-2">
+                          <code className="flex-1 truncate text-xs text-neutral-700 dark:text-neutral-300">
+                            {window.location.origin}/group/{createdGroup.id}
+                          </code>
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            onClick={() => {
+                              navigator.clipboard.writeText(
+                                `${window.location.origin}/group/${createdGroup.id}`
+                              );
+                              toast.success("Group link copied!");
+                            }}
+                          >
+                            <Copy
+                              size={14}
+                              variant="Bulk"
+                              color="currentColor"
+                            />
+                          </Button>
+                          <Button size={"sm"} asChild>
+                            <Link
+                              href={`${window.location.origin}/group/${createdGroup.id}`}
+                            >
+                              <Eye
+                                size={14}
+                                variant="Bulk"
+                                color="currentColor"
+                              />
+                            </Link>
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            }
-            icon={<Folder variant="Bulk" size={24} color="currentColor" />}
-            actions={[
-              <Button
-                key="dismiss"
-                onClick={() => setCreatedGroup(null)}
-                variant="secondary"
-              >
-                Dismiss
-              </Button>,
-            ]}
-          />
-        )}
-
-        {generatedLinks.length > 0 && (
-          <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
-              Generated Links
-            </h2>
-
-            {generatedLinks.length > 1 && (
-              <div className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
-                <input
-                  type="text"
-                  value={groupName}
-                  onChange={(e) => setGroupName(e.target.value)}
-                  placeholder="Group Name"
-                  className="flex-1 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
-                />
-                <Button onClick={handleCreateGroup}>
-                  {isGrouping ? "Grouping..." : "Create Group"}
-                </Button>
-              </div>
+                }
+                icon={<Folder variant="Bulk" size={24} color="currentColor" />}
+                actions={[
+                  <Button
+                    key="dismiss"
+                    onClick={() => setCreatedGroup(null)}
+                    variant="secondary"
+                  >
+                    Dismiss
+                  </Button>,
+                ]}
+              />
             )}
 
-            <div className="grid gap-4">
-              {generatedLinks.map((link) => (
-                <InfoBox
-                  key={link.id}
-                  type={"success"}
-                  title={link.title}
-                  description={
-                    <Link
-                      href={link.url}
-                      target="_blank"
-                      className="text-blue-600 hover:underline"
-                    >
-                      {link.url}
-                    </Link>
-                  }
-                  icon={
-                    <LinkIcon variant="Bulk" size={24} color="currentColor" />
-                  }
-                  actions={[
-                    <Button
-                      key={"copy"}
-                      onClick={() => copyLink(link.url)}
-                      variant={"secondary"}
-                    >
-                      <Copy size={16} color="currentColor" variant="Bulk" />
-                      Copy
-                    </Button>,
-                  ]}
-                />
-              ))}
-            </div>
+            {generatedLinks.length > 0 && (
+              <div className="space-y-4">
+                {generatedLinks.length > 1 && (
+                  <div className="flex flex-wrap items-center gap-2 rounded-xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
+                    <input
+                      type="text"
+                      value={groupName}
+                      onChange={(e) => setGroupName(e.target.value)}
+                      placeholder="Group Name"
+                      className="flex-1 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
+                    />
+                    <Button className="max-sm:grow" onClick={handleCreateGroup}>
+                      {isGrouping ? "Grouping..." : "Create Group"}
+                    </Button>
+                  </div>
+                )}
+
+                <div className="flex flex-col gap-4">
+                  {generatedLinks.map((link) => (
+                    <InfoBox
+                      key={link.id}
+                      type={"success"}
+                      title={
+                        <span className="block truncate">{link.title}</span>
+                      }
+                      description={
+                        <Link
+                          href={link.url}
+                          target="_blank"
+                          className="block truncate text-blue-600 hover:underline"
+                        >
+                          {link.url}
+                        </Link>
+                      }
+                      icon={
+                        <LinkIcon
+                          variant="Bulk"
+                          size={24}
+                          color="currentColor"
+                        />
+                      }
+                      actions={[
+                        <Button
+                          key={"copy"}
+                          onClick={() => copyLink(link.url)}
+                          variant={"secondary"}
+                        >
+                          <Copy size={16} color="currentColor" variant="Bulk" />
+                          Copy
+                        </Button>,
+                      ]}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
-        )}
+        </ResponsiveDialog>
       </div>
     </div>
   );
