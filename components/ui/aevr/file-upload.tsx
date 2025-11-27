@@ -540,13 +540,13 @@ const FileUpload: React.FC<FileUploadProps> = ({
             )}
           </div>
 
-          <div className="grid gap-2">
+          <div className="flex flex-col gap-2">
             {uploadedFiles.map((file) => (
               <div
                 key={file.id}
-                className="flex items-center justify-between rounded-lg border border-neutral-200 bg-white p-3 dark:border-neutral-600 dark:bg-neutral-800"
+                className="flex items-center max-w-full justify-between rounded-lg border border-neutral-200 bg-white p-3 dark:border-neutral-600 dark:bg-neutral-800"
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 max-w-[calc(100%-1rem)]">
                   {showPreviews && file.preview ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
