@@ -59,7 +59,7 @@ export default async function GroupPage({
           >
             <ArrowLeft size={20} variant="Bulk" color="currentColor" />
           </Link>
-          <div>
+          <div className="">
             <h1 className="flex items-center gap-2 text-2xl font-bold text-neutral-900 dark:text-neutral-100">
               <Folder
                 size={28}
@@ -69,13 +69,16 @@ export default async function GroupPage({
               />
               {group.title}
             </h1>
-            <p className="text-sm text-neutral-500 dark:text-neutral-400">
-              Created{" "}
-              {formatDistanceToNow(new Date(group.createdAt), {
-                addSuffix: true,
-              })}{" "}
-              • {group.links.length} items
-            </p>
+            <div className="text-sm flex items-center flex-wrap text-neutral-500 dark:text-neutral-400">
+              <span>
+                Created{" "}
+                {formatDistanceToNow(new Date(group.createdAt), {
+                  addSuffix: true,
+                })}{" "}
+                •
+              </span>
+              <span>{group.links.length} items</span>
+            </div>
           </div>
         </div>
 
@@ -86,7 +89,7 @@ export default async function GroupPage({
                 key={link._id}
                 className="group relative overflow-hidden rounded-xl border border-neutral-200 bg-white p-6 shadow-sm transition-all hover:shadow-md dark:border-neutral-800 dark:bg-neutral-900"
               >
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex max-[28rem]:flex-wrap items-start justify-between gap-4">
                   <div className="flex items-start gap-3">
                     <div className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400">
                       <DocumentText
@@ -102,7 +105,7 @@ export default async function GroupPage({
                       <p className="mt-1 line-clamp-2 text-sm text-neutral-500 dark:text-neutral-400">
                         {link.content.substring(0, 150)}...
                       </p>
-                      <div className="mt-3 flex items-center gap-2 text-xs text-neutral-400">
+                      <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-neutral-400">
                         <span>ID: {link._id}</span>
                         <span>•</span>
                         <span>

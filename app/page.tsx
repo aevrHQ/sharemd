@@ -204,6 +204,19 @@ export default function Home() {
           </div>
         </div>
 
+        {generatedLinks.length > 0 && !showGeneratedLinksDialog && (
+          <div className="flex justify-center animate-in fade-in slide-in-from-bottom-4 duration-300">
+            <Button
+              onClick={() => setShowGeneratedLinksDialog(true)}
+              variant="secondary"
+              className="gap-2 shadow-sm"
+            >
+              <LinkIcon size={18} variant="Bulk" color="currentColor" />
+              View Generated Links ({generatedLinks.length})
+            </Button>
+          </div>
+        )}
+
         <ResponsiveDialog
           openPrompt={showGeneratedLinksDialog}
           onOpenPromptChange={(open) =>
