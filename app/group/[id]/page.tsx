@@ -61,7 +61,12 @@ export default async function GroupPage({
           </Link>
           <div>
             <h1 className="flex items-center gap-2 text-2xl font-bold text-zinc-900 dark:text-zinc-100">
-              <Folder size={28} variant="Bulk" className="text-indigo-500" />
+              <Folder
+                size={28}
+                variant="Bulk"
+                className="text-indigo-500"
+                color="currentColor"
+              />
               {group.title}
             </h1>
             <p className="text-sm text-zinc-500 dark:text-zinc-400">
