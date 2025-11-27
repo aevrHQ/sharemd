@@ -399,6 +399,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
   };
 
   const handleDrop = useCallback(
+    // eslint-disable-next-line react-hooks/preserve-manual-memoization
     (e: React.DragEvent<HTMLDivElement>) => {
       e.preventDefault();
       setIsDragOver(false);
