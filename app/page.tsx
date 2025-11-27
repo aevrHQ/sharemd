@@ -152,7 +152,7 @@ export default function Home() {
           <div className="rounded-xl border border-green-200 bg-green-50 p-6 dark:border-green-900/30 dark:bg-green-900/10">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400">
-                <LinkIcon variant="Bulk" size={24} />
+                <LinkIcon variant="Bulk" size={24} color="currentColor" />
               </div>
               <div className="flex-1 overflow-hidden">
                 <p className="text-sm font-medium text-green-900 dark:text-green-100">
@@ -166,7 +166,7 @@ export default function Home() {
                 onClick={copyLink}
                 className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm font-medium text-zinc-700 shadow-sm hover:bg-zinc-50 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
               >
-                <Copy size={16} />
+                <Copy size={16} color="currentColor" variant="Bulk" />
                 Copy
               </button>
             </div>

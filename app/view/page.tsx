@@ -42,7 +42,7 @@ function ViewContent() {
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <Loader loading={true} />
+        <Loader loading={true} className="w-8 h-8" />
       </div>
     );
   }
