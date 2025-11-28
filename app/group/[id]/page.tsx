@@ -1,4 +1,5 @@
-import React from "react";
+// ./app/group/[id]/page.tsx
+
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { ArrowLeft, DocumentText, Folder } from "iconsax-react";
