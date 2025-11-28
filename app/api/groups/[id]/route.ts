@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import LinkGroup from "@/models/link-group";
+import Markdown from "@/models/markdown"; // Add this import
 
 export async function GET(
   req: NextRequest,
