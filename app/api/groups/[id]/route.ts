@@ -1,7 +1,10 @@
+// ./app/api/groups/[id]/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import LinkGroup from "@/models/link-group";
-import Markdown from "@/models/markdown"; // Add this import
+// Import Markdown model to ensure it's registered
+import "@/models/markdown";
 
 export async function GET(
   req: NextRequest,
