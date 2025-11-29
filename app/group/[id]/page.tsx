@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { ArrowLeft, DocumentText, Folder } from "iconsax-react";
+import GroupShareButton from "@/components/group/group-share-button";
 
 async function getGroup(id: string) {
   const res = await fetch(
@@ -53,34 +54,37 @@ export default async function GroupPage({
   return (
     <div className="min-h-screen bg-neutral-50 p-2 lg:p-8 dark:bg-neutral-950">
       <div className="mx-auto max-w-3xl space-y-8">
-        <div className="flex items-center gap-4">
-          <Link
-            href="/"
-            className="flex items-center justify-center rounded-lg border border-neutral-200 bg-white p-2 text-neutral-700 hover:bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-800"
-          >
-            <ArrowLeft size={20} variant="Bulk" color="currentColor" />
-          </Link>
-          <div className="">
-            <h1 className="flex items-center gap-2 text-2xl font-bold text-neutral-900 dark:text-neutral-100">
-              <Folder
-                size={28}
-                variant="Bulk"
-                className="text-indigo-500"
-                color="currentColor"
-              />
-              {group.title}
-            </h1>
-            <div className="text-sm flex items-center flex-wrap text-neutral-500 dark:text-neutral-400">
-              <span>
-                Created{" "}
-                {formatDistanceToNow(new Date(group.createdAt), {
-                  addSuffix: true,
-                })}{" "}
-                •
-              </span>
-              <span>{group.links.length} items</span>
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <Link
+              href="/"
+              className="flex items-center justify-center rounded-lg border border-neutral-200 bg-white p-2 text-neutral-700 hover:bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-800"
+            >
+              <ArrowLeft size={20} variant="Bulk" color="currentColor" />
+            </Link>
+            <div className="">
+              <h1 className="flex items-center gap-2 text-2xl font-bold text-neutral-900 dark:text-neutral-100">
+                <Folder
+                  size={28}
+                  variant="Bulk"
+                  className="text-indigo-500"
+                  color="currentColor"
+                />
+                {group.title}
+              </h1>
+              <div className="text-sm flex items-center flex-wrap text-neutral-500 dark:text-neutral-400">
+                <span>
+                  Created{" "}
+                  {formatDistanceToNow(new Date(group.createdAt), {
+                    addSuffix: true,
+                  })}{" "}
+                  •
+                </span>
+                <span>{group.links.length} items</span>
+              </div>
             </div>
           </div>
+          <GroupShareButton groupId={group._id} title={group.title} />
         </div>
 
         <div className="grid gap-4">
