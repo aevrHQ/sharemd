@@ -200,7 +200,7 @@ export default function Home() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
+          className=""
         >
           <h2 className="mb-4 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
             Paste Markdown
