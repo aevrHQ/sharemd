@@ -17,11 +17,15 @@ import {
   Quote,
   Undo,
   Redo,
+  Heading1,
+  Heading2,
+  Heading3,
+  Heading4,
 } from "lucide-react";
 import { marked } from "marked";
 import { useEffect } from "react";
 import Loader from "./ui/aevr/loader";
-import { Check, CloseCircle, Save2, SaveAdd, TickCircle } from "iconsax-react";
+import { CloseCircle, TickCircle } from "iconsax-react";
 import { Button } from "./ui/aevr/button";
 
 interface EditorProps {
@@ -29,6 +33,7 @@ interface EditorProps {
   onSave: (content: string) => void;
   onCancel: () => void;
   isSaving?: boolean;
+  saveButtonText?: string;
 }
 
 const MenuBar = ({ editor }: { editor: EditorType | null }) => {
@@ -77,6 +82,51 @@ const MenuBar = ({ editor }: { editor: EditorType | null }) => {
         title="Code"
       >
         <Code size={18} />
+      </button>
+      <div className="mx-1 w-px bg-neutral-300 dark:bg-neutral-700" />
+      <button
+        onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+        className={`rounded p-1 hover:bg-neutral-200 dark:hover:bg-neutral-800 ${
+          editor.isActive("heading", { level: 1 })
+            ? "bg-neutral-200 dark:bg-neutral-800"
+            : ""
+        }`}
+        title="Heading 1"
+      >
+        <Heading1 size={18} />
+      </button>
+      <button
+        onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+        className={`rounded p-1 hover:bg-neutral-200 dark:hover:bg-neutral-800 ${
+          editor.isActive("heading", { level: 2 })
+            ? "bg-neutral-200 dark:bg-neutral-800"
+            : ""
+        }`}
+        title="Heading 2"
+      >
+        <Heading2 size={18} />
+      </button>
+      <button
+        onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+        className={`rounded p-1 hover:bg-neutral-200 dark:hover:bg-neutral-800 ${
+          editor.isActive("heading", { level: 3 })
+            ? "bg-neutral-200 dark:bg-neutral-800"
+            : ""
+        }`}
+        title="Heading 3"
+      >
+        <Heading3 size={18} />
+      </button>
+      <button
+        onClick={() => editor.chain().focus().toggleHeading({ level: 4 }).run()}
+        className={`rounded p-1 hover:bg-neutral-200 dark:hover:bg-neutral-800 ${
+          editor.isActive("heading", { level: 4 })
+            ? "bg-neutral-200 dark:bg-neutral-800"
+            : ""
+        }`}
+        title="Heading 4"
+      >
+        <Heading4 size={18} />
       </button>
       <div className="mx-1 w-px bg-neutral-300 dark:bg-neutral-700" />
       <button
@@ -138,6 +188,7 @@ export default function Editor({
   onSave,
   onCancel,
   isSaving = false,
+  saveButtonText = "Save Changes",
 }: EditorProps) {
   const editor = useEditor({
     immediatelyRender: false,
@@ -271,7 +322,7 @@ export default function Editor({
     <div className="overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-950">
       <MenuBar editor={editor} />
       <EditorContent editor={editor} />
-      <div className="flex items-center justify-end gap-2 border-t border-neutral-200 bg-neutral-50 p-2 dark:border-neutral-800 dark:bg-neutral-900/50">
+      <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-xl border border-neutral-200 bg-white/80 p-2 shadow-lg backdrop-blur-sm dark:border-neutral-800 dark:bg-neutral-900/80">
         <Button onClick={onCancel} disabled={isSaving} variant={"secondary"}>
           <CloseCircle
             className="icon w-5 h-5"
@@ -280,7 +331,7 @@ export default function Editor({
           />
           <span>Cancel</span>
         </Button>
-        <Button onClick={handleSave} disabled={isSaving}>
+        <Button onClick={handleSave} disabled={isSaving || editor.isEmpty}>
           {isSaving ? (
             <>
               <Loader loading />
@@ -289,11 +340,11 @@ export default function Editor({
           ) : (
             <>
               <TickCircle
-                className="icon w-5 h-5"
-                variant="Bulk"
                 color="currentColor"
+                variant="Bulk"
+                className="icon w-5 h-5"
               />
-              <span>Save Changes</span>
+              <span>{saveButtonText}</span>
             </>
           )}
         </Button>

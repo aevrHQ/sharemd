@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/aevr/button";
 import { InfoBox } from "@/components/ui/aevr/info-box";
 import Link from "next/link";
 import ResponsiveDialog from "@/components/ui/aevr/responsive-dialog";
+import { motion } from "motion/react";
+import Editor from "@/components/editor";
 
 export default function Home() {
   const [generatedLinks, setGeneratedLinks] = useState<
@@ -82,8 +84,8 @@ export default function Home() {
     // Or we could sync them.
   };
 
-  const handleTextUpload = async () => {
-    if (!textInput.trim()) {
+  const handleTextUpload = async (content: string) => {
+    if (!content.trim()) {
       toast.error("Please enter some markdown text");
       return;
     }
@@ -91,7 +93,7 @@ export default function Home() {
     setIsUploading(true);
     try {
       const formData = new FormData();
-      formData.append("text", textInput);
+      formData.append("text", content);
 
       const response = await fetch("/api/upload", {
         method: "POST",
@@ -110,6 +112,12 @@ export default function Home() {
         saveLink(id, "Untitled Markdown");
         setShowGeneratedLinksDialog(true);
         toast.success("Text uploaded successfully!");
+        setTextInput(""); // Clear input if we were using it, though Editor manages its own state mostly.
+        // We might need to force reset Editor content if we want to clear it.
+        // But for now, let's just rely on the user manually clearing or just leaving it.
+        // Actually, Editor takes initialContent. Changing it might reset it if we add a key or useEffect.
+        // Let's add a key to Editor to force re-render on success?
+        // Or just leave it.
       } else {
         toast.error(result.error || "Failed to upload text");
       }
@@ -162,7 +170,12 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
+        >
           <h2 className="mb-4 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
             Upload File
           </h2>
@@ -175,7 +188,7 @@ export default function Home() {
             multiple={true}
             title="Drop markdown file here"
           />
-        </div>
+        </motion.div>
 
         <div className="relative flex items-center py-4">
           <div className="grow border-t border-neutral-200 dark:border-neutral-800"></div>
@@ -183,26 +196,23 @@ export default function Home() {
           <div className="grow border-t border-neutral-200 dark:border-neutral-800"></div>
         </div>
 
-        <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
+        >
           <h2 className="mb-4 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
             Paste Markdown
           </h2>
-          <textarea
-            value={textInput}
-            onChange={(e) => setTextInput(e.target.value)}
-            placeholder="# Paste your markdown here..."
-            className="h-48 w-full rounded-lg border border-neutral-200 bg-neutral-50 p-4 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
+          <Editor
+            initialContent={textInput}
+            onSave={handleTextUpload}
+            onCancel={() => setTextInput("")}
+            isSaving={isUploading}
+            saveButtonText={isUploading ? "Generating..." : "Generate Link"}
           />
-          <div className="mt-4 flex justify-end">
-            <button
-              onClick={handleTextUpload}
-              disabled={isUploading || !textInput.trim()}
-              className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
-            >
-              {isUploading ? "Generating..." : "Generate Link"}
-            </button>
-          </div>
-        </div>
+        </motion.div>
 
         {generatedLinks.length > 0 && !showGeneratedLinksDialog && (
           <div className="flex justify-center animate-in fade-in slide-in-from-bottom-4 duration-300">

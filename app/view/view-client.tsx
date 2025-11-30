@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { useSavedLinks } from "@/hooks/use-saved-links";
 import useShare from "@/hooks/aevr/use-share";
 import Editor from "@/components/editor";
+import { Button } from "@/components/ui/aevr/button";
 
 interface ViewClientProps {
   initialContent?: string | null;
@@ -143,45 +144,45 @@ export default function ViewClient({
   }
 
   return (
-    <div className="min-h-screen bg-white p-8 dark:bg-neutral-950">
+    <div className="min-h-screen bg-white p-2 py-8 lg:p-8 dark:bg-neutral-950">
       <div className="mx-auto max-w-4xl">
         <div className="mb-6 flex items-center justify-end gap-2">
           {!isEditing && (
-            <button
+            <Button
               onClick={() => setIsEditing(true)}
-              className="flex items-center gap-2 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-800"
+              variant="secondary"
+              className="gap-2"
               title="Edit Markdown"
             >
               <Edit size={18} variant="Bulk" color="currentColor" />
               <span className="hidden sm:inline">Edit</span>
-            </button>
+            </Button>
           )}
-          <button
+          <Button
             onClick={handleShare}
             disabled={isSharing}
-            className="flex items-center gap-2 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-800"
+            variant="secondary"
+            className="gap-2"
             title="Share Link"
           >
             <Share size={18} variant="Bulk" color="currentColor" />
             <span className="hidden sm:inline">
               {isSharing ? "Sharing..." : "Share"}
             </span>
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={handleDownload}
-            className="flex items-center gap-2 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-800"
+            variant="secondary"
+            className="gap-2"
             title="Download Markdown"
           >
             <DocumentDownload size={18} variant="Bulk" color="currentColor" />
             <span className="hidden sm:inline">Download</span>
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={handleBookmark}
-            className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
-              id && isSaved(id)
-                ? "border-indigo-200 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 dark:border-indigo-900/30 dark:bg-indigo-900/20 dark:text-indigo-400 dark:hover:bg-indigo-900/30"
-                : "border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-800"
-            }`}
+            variant={id && isSaved(id) ? "tertiary" : "secondary"}
+            className="gap-2"
             title={id && isSaved(id) ? "Remove Bookmark" : "Bookmark"}
           >
             <ArchiveBook
@@ -192,7 +193,7 @@ export default function ViewClient({
             <span className="hidden sm:inline">
               {id && isSaved(id) ? "Saved" : "Save"}
             </span>
-          </button>
+          </Button>
         </div>
         {content && isEditing ? (
           <Editor

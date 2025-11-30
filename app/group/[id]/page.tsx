@@ -4,6 +4,7 @@ import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { ArrowLeft, DocumentText, Folder } from "iconsax-react";
 import GroupShareButton from "@/components/group/group-share-button";
+import { Button } from "@/components/ui/aevr/button";
 
 async function getGroup(id: string) {
   const res = await fetch(
@@ -39,12 +40,9 @@ export default async function GroupPage({
         <p className="mt-2 text-neutral-600 dark:text-neutral-400">
           The group you are looking for does not exist or has been deleted.
         </p>
-        <Link
-          href="/"
-          className="mt-4 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
-        >
-          Go Home
-        </Link>
+        <Button asChild className="mt-4">
+          <Link href="/">Go Home</Link>
+        </Button>
       </div>
     );
   }
@@ -56,12 +54,11 @@ export default async function GroupPage({
       <div className="mx-auto max-w-3xl space-y-8">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <Link
-              href="/"
-              className="flex items-center justify-center rounded-lg border border-neutral-200 bg-white p-2 text-neutral-700 hover:bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-800"
-            >
-              <ArrowLeft size={20} variant="Bulk" color="currentColor" />
-            </Link>
+            <Button asChild variant="secondary" className="p-2">
+              <Link href="/">
+                <ArrowLeft size={20} variant="Bulk" color="currentColor" />
+              </Link>
+            </Button>
             <div className="">
               <h1 className="flex items-center gap-2 text-2xl font-bold text-neutral-900 dark:text-neutral-100">
                 <Folder
@@ -121,12 +118,9 @@ export default async function GroupPage({
                       </div>
                     </div>
                   </div>
-                  <Link
-                    href={`/view?id=${link._id}`}
-                    className="shrink-0 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
-                  >
-                    View
-                  </Link>
+                  <Button asChild size="sm">
+                    <Link href={`/view?id=${link._id}`}>View</Link>
+                  </Button>
                 </div>
               </div>
             )
