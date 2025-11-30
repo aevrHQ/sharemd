@@ -221,8 +221,8 @@ export default function Editor({
 
   useEffect(() => {
     if (editor) {
-      // Set initial state
-      setIsEmpty(editor.isEmpty);
+      // Set initial state - removed to avoid sync setState warning
+      // setIsEmpty(editor.isEmpty);
 
       const updateEmptyState = () => {
         setIsEmpty(editor.isEmpty);
