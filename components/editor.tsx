@@ -319,35 +319,39 @@ export default function Editor({
   };
 
   return (
-    <div className="overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-950">
-      <MenuBar editor={editor} />
+    <div className="relative rounded-lg border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-950">
+      <div className="rounded-t-lg overflow-hidden">
+        <MenuBar editor={editor} />
+      </div>
       <EditorContent editor={editor} />
-      <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-xl border border-neutral-200 bg-white/80 p-2 shadow-lg backdrop-blur-sm dark:border-neutral-800 dark:bg-neutral-900/80">
-        <Button onClick={onCancel} disabled={isSaving} variant={"secondary"}>
-          <CloseCircle
-            className="icon w-5 h-5"
-            variant="Bulk"
-            color="currentColor"
-          />
-          <span>Cancel</span>
-        </Button>
-        <Button onClick={handleSave} disabled={isSaving || editor.isEmpty}>
-          {isSaving ? (
-            <>
-              <Loader loading />
-              <span>Saving...</span>
-            </>
-          ) : (
-            <>
-              <TickCircle
-                color="currentColor"
-                variant="Bulk"
-                className="icon w-5 h-5"
-              />
-              <span>{saveButtonText}</span>
-            </>
-          )}
-        </Button>
+      <div className="sticky bottom-4 z-10 flex justify-end px-4 pb-2 pointer-events-none">
+        <div className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-white/80 p-2 shadow-lg backdrop-blur-sm dark:border-neutral-800 dark:bg-neutral-900/80 pointer-events-auto">
+          <Button onClick={onCancel} disabled={isSaving} variant={"secondary"}>
+            <CloseCircle
+              className="icon w-5 h-5"
+              variant="Bulk"
+              color="currentColor"
+            />
+            <span>Cancel</span>
+          </Button>
+          <Button onClick={handleSave} disabled={isSaving || editor.isEmpty}>
+            {isSaving ? (
+              <>
+                <Loader loading />
+                <span>Saving...</span>
+              </>
+            ) : (
+              <>
+                <TickCircle
+                  color="currentColor"
+                  variant="Bulk"
+                  className="icon w-5 h-5"
+                />
+                <span>{saveButtonText}</span>
+              </>
+            )}
+          </Button>
+        </div>
       </div>
     </div>
   );
