@@ -211,6 +211,7 @@ export default function Home() {
             onCancel={() => setTextInput("")}
             isSaving={isUploading}
             saveButtonText={isUploading ? "Generating..." : "Generate Link"}
+            persistenceKey="markdown-editor-main"
           />
         </motion.div>
 

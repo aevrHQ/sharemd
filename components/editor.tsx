@@ -24,16 +24,18 @@ import {
   Heading4,
 } from "lucide-react";
 import { marked } from "marked";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Loader from "./ui/aevr/loader";
 import { CloseCircle, TickCircle } from "iconsax-react";
 import { Button } from "./ui/aevr/button";
+import { usePersistedState } from "@/hooks/aevr/use-persisted-state";
 
 interface EditorProps {
   initialContent?: string;
-  onSave: (content: string) => void;
+  onSave: (content: string) => void | Promise<void>;
   onCancel: () => void;
   isSaving?: boolean;
+  persistenceKey?: string;
   saveButtonText?: string;
 }
 
@@ -190,7 +192,19 @@ export default function Editor({
   onCancel,
   isSaving = false,
   saveButtonText = "Save Changes",
+  persistenceKey,
 }: EditorProps) {
+  // Use a fallback key if none provided, but disable persistence in that case
+  const fallbackKey = "editor-fallback-key";
+  const {
+    state: persistedHtml,
+    setState: setPersistedHtml,
+    resetState,
+  } = usePersistedState<string>("", {
+    storageKey: persistenceKey || fallbackKey,
+    enablePersistence: !!persistenceKey,
+  });
+
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
@@ -199,7 +213,7 @@ export default function Editor({
         placeholder: "Start writing...",
       }),
     ],
-    content: "", // Initial content will be set via useEffect after parsing
+    content: "", // Initial content will be set via useEffect
     editorProps: {
       attributes: {
         class:
@@ -235,23 +249,19 @@ export default function Editor({
     },
     onUpdate: ({ editor }) => {
       // Force re-render to update button state
-      editor.isActive("bold"); // Just accessing a property to ensure reactivity if needed, but onUpdate is enough to trigger component re-render if we use a state.
-      // Actually, useEditor triggers re-render on update by default? No.
-      // We need to use a state or forceUpdate.
-      // But wait, the buttons use `editor.isActive(...)` which works because `MenuBar` re-renders?
-      // `MenuBar` is a child component. Does `useEditor` return a new object reference on update? No.
-      // We need to store `isEmpty` in a state or force update.
+      editor.isActive("bold");
+
+      // Sync to persisted state
+      setPersistedHtml(editor.getHTML());
     },
   });
 
   // We need to track empty state to disable the button
   const [isEmpty, setIsEmpty] = useState(true);
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
     if (editor) {
-      // Set initial state - removed to avoid sync setState warning
-      // setIsEmpty(editor.isEmpty);
-
       const updateEmptyState = () => {
         setIsEmpty(editor.isEmpty);
       };
@@ -264,115 +274,51 @@ export default function Editor({
     }
   }, [editor]);
 
+  // Sync initialContent to persistedHtml (and thus to editor)
   useEffect(() => {
-    const parseContent = async () => {
-      if (initialContent && editor) {
+    const syncInitialContent = async () => {
+      // On first render, if initialContent is empty, we DON'T want to overwrite persistedHtml
+      // because we want to load the saved state.
+      if (isFirstRender.current) {
+        isFirstRender.current = false;
+        if (!initialContent) {
+          return;
+        }
+      }
+
+      // If initialContent is provided (or changed later), we update the state.
+      // This handles "Reset" (when initialContent becomes "") and "Edit File" (when initialContent has value).
+      if (initialContent !== undefined) {
         const html = await marked.parse(initialContent);
-        editor.commands.setContent(html);
+        setPersistedHtml(html);
       }
     };
-    parseContent();
-  }, [initialContent, editor]);
+    syncInitialContent();
+  }, [initialContent, setPersistedHtml]);
+
+  // Sync persistedHtml to editor
+  useEffect(() => {
+    if (editor && persistedHtml !== undefined) {
+      // Only update if content is different to avoid cursor jumps
+      if (editor.getHTML() !== persistedHtml) {
+        editor.commands.setContent(persistedHtml);
+      }
+    }
+  }, [editor, persistedHtml]);
 
   if (!editor) {
     return null;
   }
 
-  const handleSave = () => {
-    // Get markdown content - for now we'll just use HTML as the storage format is flexible,
-    // but ideally we'd convert back to markdown.
-    // Since the Viewer uses 'marked' which parses markdown, we should probably try to save markdown.
-    // However, TipTap works with HTML/JSON.
-    // For this simple implementation, let's assume the user wants to edit the text.
-    // If we want to support markdown editing specifically, we might need a markdown extension or
-    // just use a textarea. But the user asked for "markdown edit functionality" and showed TipTap code.
-    // TipTap is a rich text editor.
-    // Let's stick to TipTap's HTML output for now, but wait, the Viewer expects markdown string.
-    // If we save HTML, 'marked' might not parse it as expected or it might just render HTML.
-    // Let's check if we can get markdown from TipTap.
-    // There are libraries for this, but for now let's just use the text content or HTML.
-    // Actually, if the original content is markdown, loading it into TipTap might lose some formatting
-    // if we don't use a markdown parser to hydrate it.
-    //
-    // Re-reading the user request: "add simple and clean markdown edit functionality".
-    // The user provided TipTap code.
-    //
-    // If I use TipTap, I'm giving them a WYSIWYG editor.
-    // If I save the output of TipTap, it's HTML.
-    // The `Viewer` component uses `marked` to parse the content. `marked` can handle HTML.
-    // But if we want to maintain "markdown" as the source of truth, we should probably convert HTML back to Markdown.
-    //
-    // However, for a "simple" implementation without adding more heavy dependencies like `turndown` or `tiptap-markdown`,
-    // maybe we can just save the text? No, that loses formatting.
-    //
-    // Let's look at the user's provided code again.
-    // It imports `Tiptap` from `@/components/Tiptap`.
-    // And `updateNote` takes `content` and `markdown`.
-    //
-    // Since I don't have the full context of the user's "other project", I should probably stick to what's requested.
-    // "unauthenticated visitors can edit a markdown and save it".
-    //
-    // If I use TipTap, I am effectively converting the markdown to rich text, editing it, and then...
-    // if I save it as HTML, `marked` will render it.
-    // But if the user wants to download it as `.md`, they might get HTML.
-    //
-    // Let's check `app/view/view-client.tsx` again.
-    // `handleDownload` creates a blob with `type: "text/markdown"`.
-    // If I save HTML, the download will be an HTML file masquerading as MD.
-    //
-    // Maybe a simple textarea is better for "Markdown Edit"?
-    // But the user EXPLICITLY provided TipTap code.
-    //
-    // I will use TipTap. I will try to use a markdown serializer if possible, or just save HTML and accept that it's "Rich Text" now.
-    // OR, I can use `editor.storage.markdown.getMarkdown()` if I install `tiptap-markdown`.
-    //
-    // Let's stick to the requested dependencies. The user didn't ask for `tiptap-markdown`.
-    // I'll use `editor.getHTML()` for now.
-    // Wait, if I load markdown into TipTap `content: initialContent`, TipTap might not parse markdown automatically without an extension.
-    // TipTap expects HTML or JSON.
-    //
-    // If `initialContent` is markdown, passing it to `useEditor({ content: ... })` will treat it as text (if it's just a string) or HTML.
-    // If it's markdown string like "**bold**", TipTap might just show "**bold**" as text.
-    //
-    // Let's verify this.
-    // If I pass "**Hello**" to TipTap, it renders "**Hello**".
-    // If I want it to render Bold Hello, I need to parse it first.
-    //
-    // The `Viewer` uses `marked`. I can use `marked` to convert MD -> HTML, then pass HTML to TipTap.
-    // Then on save, I get HTML.
-    //
-    // This seems like a reasonable flow for "Rich Text Editing of Markdown".
-    //
-    // But then saving it back... it will be HTML.
-    //
-    // If the user wants to "edit a markdown", they might expect a raw markdown editor (textarea).
-    // "Here's code from a different project that uses tip tap editor" implies they want a similar experience.
-    // The provided code has `Tiptap` component.
-    //
-    // I'll implement the TipTap editor. I'll use `marked` to hydrate it if needed, or just pass the content if it's already HTML-ish.
-    // But the model says `content: string`.
-    //
-    // Let's assume for now we just want to edit the content.
-    // I'll add a simple "Raw Markdown" mode switch if I can, or just use a Textarea for simplicity if TipTap is too complex for "Markdown" editing without serialization.
-    //
-    // Actually, looking at the user request again: "Help me add simple and clean markdown edit functionality... Here's code... that uses tip tap".
-    // They probably want the TipTap experience.
-    //
-    // I will use `marked` to convert initial markdown to HTML for TipTap.
-    // And for saving... I'll just save the HTML.
-    // The `Viewer` renders HTML (via `marked` which handles HTML).
-    // The only downside is the "Download" button will download HTML.
-    //
-    // To fix the download, I could use a simple HTML-to-Markdown converter or just let it be.
-    // Given the scope "simple and clean", I'll stick to HTML for the editor output.
-    //
-    // Wait, if I save HTML, then next time I load it, `marked` parses HTML.
-    // `marked` parses markdown. If I pass HTML to `marked`, it usually keeps it as HTML.
-    // So it works.
-    //
-    // Let's proceed with TipTap.
-
-    onSave(editor.getHTML());
+  const handleSave = async () => {
+    // We await the onSave callback. If it succeeds (doesn't throw), we reset the state.
+    try {
+      await onSave(editor.getHTML());
+      resetState();
+    } catch (error) {
+      console.error("Save failed:", error);
+      // Do not reset state if save fails
+    }
   };
 
   return (
