@@ -4,7 +4,13 @@ import React, { useState, useEffect } from "react";
 import { Viewer } from "@/components/viewer";
 import Loader from "@/components/ui/aevr/loader";
 import { InfoBox } from "@/components/ui/aevr/info-box";
-import { ArchiveBook, DocumentDownload, Share, Edit } from "iconsax-react";
+import {
+  ArchiveBook,
+  DocumentDownload,
+  Share,
+  Edit,
+  MagicStar,
+} from "iconsax-react";
 import { toast } from "sonner";
 import { useSavedLinks } from "@/hooks/use-saved-links";
 import useShare from "@/hooks/aevr/use-share";
@@ -40,6 +46,47 @@ export default function ViewClient({
   const { shareContent, isSharing } = useShare();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isGeneratingTitle, setIsGeneratingTitle] = useState(false);
+
+  // ... (inside return)
+
+  <Button
+    onClick={async () => {
+      setIsGeneratingTitle(true);
+      const toastId = toast.loading("Generating title...");
+      try {
+        const response = await fetch(`/api/view/${id}/generate-title`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ content }),
+        });
+        const result = await response.json();
+        if (result.success) {
+          setTitleInput(result.data.title);
+          toast.success("Title generated!", { id: toastId });
+        } else {
+          toast.error(result.error || "Failed to generate title", {
+            id: toastId,
+          });
+        }
+      } catch (error) {
+        toast.error("Failed to generate title", { id: toastId });
+      } finally {
+        setIsGeneratingTitle(false);
+      }
+    }}
+    variant="secondary"
+    className="shrink-0 gap-2"
+    title="Generate Title with AI"
+    disabled={isGeneratingTitle}
+  >
+    <Loader loading={isGeneratingTitle} className="w-5 h-5" />
+    {!isGeneratingTitle && (
+      <MagicStar size={20} variant="Bulk" color="currentColor" />
+    )}
+  </Button>;
 
   useEffect(() => {
     if (initialContent || initialError) {
@@ -222,14 +269,57 @@ export default function ViewClient({
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
             >
-              <div className="mb-4">
+              <div className="mb-4 flex gap-2">
                 <input
                   type="text"
                   value={titleInput}
                   onChange={(e) => setTitleInput(e.target.value)}
                   placeholder="Document Title"
-                  className="w-full text-2xl font-bold bg-transparent border-b border-neutral-200 py-2 focus:border-indigo-500 focus:outline-none dark:border-neutral-800 dark:text-neutral-100"
+                  className="flex-1 text-2xl font-bold bg-transparent border-b border-neutral-200 py-2 focus:border-indigo-500 focus:outline-none dark:border-neutral-800 dark:text-neutral-100"
                 />
+                <Button
+                  onClick={async () => {
+                    setIsGeneratingTitle(true);
+                    const toastId = toast.loading("Generating title...");
+                    try {
+                      const response = await fetch(
+                        `/api/view/${id}/generate-title`,
+                        {
+                          method: "POST",
+                          headers: {
+                            "Content-Type": "application/json",
+                          },
+                          body: JSON.stringify({ content }),
+                        }
+                      );
+                      const result = await response.json();
+                      if (result.success) {
+                        setTitleInput(result.data.title);
+                        toast.success("Title generated!", { id: toastId });
+                      } else {
+                        toast.error(
+                          result.error || "Failed to generate title",
+                          {
+                            id: toastId,
+                          }
+                        );
+                      }
+                    } catch (error) {
+                      toast.error("Failed to generate title", { id: toastId });
+                    } finally {
+                      setIsGeneratingTitle(false);
+                    }
+                  }}
+                  variant="secondary"
+                  className="shrink-0 gap-2"
+                  title="Generate Title with AI"
+                  disabled={isGeneratingTitle}
+                >
+                  <Loader loading={isGeneratingTitle} className="w-5 h-5" />
+                  {!isGeneratingTitle && (
+                    <MagicStar size={20} variant="Bulk" color="currentColor" />
+                  )}
+                </Button>
               </div>
               <Editor
                 initialContent={content}
