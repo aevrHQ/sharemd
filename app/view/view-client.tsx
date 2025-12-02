@@ -11,6 +11,8 @@ import useShare from "@/hooks/aevr/use-share";
 import Editor from "@/components/editor";
 import { Button } from "@/components/ui/aevr/button";
 import { AnimatePresence, motion } from "motion/react";
+import CommentsSection from "@/components/comments-section";
+import ReactionButton from "@/components/reaction-button";
 
 interface ViewClientProps {
   initialContent?: string | null;
@@ -162,6 +164,7 @@ export default function ViewClient({
     <div className="min-h-screen bg-white p-2 py-8 lg:p-8 dark:bg-neutral-950">
       <div className="mx-auto max-w-4xl">
         <div className="mb-6 flex items-center justify-end gap-2">
+          <ReactionButton markdownId={id} />
           {!isEditing && (
             <Button
               onClick={() => setIsEditing(true)}
@@ -251,6 +254,7 @@ export default function ViewClient({
                   {title}
                 </h1>
                 <Viewer content={content} />
+                <CommentsSection markdownId={id} />
               </motion.div>
             )
           )}
