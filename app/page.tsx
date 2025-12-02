@@ -112,9 +112,7 @@ export default function Home() {
         const id = result.data.id;
         const url = `${window.location.origin}/view?id=${id}`;
         const title =
-          (result as { id: string; title?: string }).title ||
-          titleInput.trim() ||
-          "Untitled Markdown";
+          result.data.title || titleInput.trim() || "Untitled Markdown";
         setGeneratedLinks((prev) => [...prev, { id, title, url }]);
         saveLink(id, title);
         setShowGeneratedLinksDialog(true);

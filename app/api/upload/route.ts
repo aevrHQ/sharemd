@@ -61,6 +61,7 @@ export async function POST(req: NextRequest) {
       success: true,
       data: {
         id: markdown._id,
+        title: markdown.title,
       },
     });
   } catch (error) {

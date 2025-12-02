@@ -16,6 +16,7 @@ async function getMarkdown(id: string) {
     if (!markdown) return null;
     return {
       content: markdown.content,
+      title: markdown.title,
       createdAt: markdown.createdAt,
     };
   } catch (error) {
@@ -47,11 +48,13 @@ export async function generateMetadata({
   const description =
     markdown.content.slice(0, 150).replace(/[#*`]/g, "") + "...";
 
+  const title = markdown.title || `View Markdown | ${id.substring(0, 8)}`;
+
   return {
-    title: `View Markdown | ${id.substring(0, 8)}`,
+    title: title,
     description: description,
     openGraph: {
-      title: `View Markdown | ${id.substring(0, 8)}`,
+      title: title,
       description: description,
     },
   };
@@ -62,8 +65,9 @@ export default async function ViewPage({ searchParams }: PageProps) {
   let initialContent: string | null = null;
   let error: string | null = null;
 
+  let markdown = null;
   if (id && typeof id === "string") {
-    const markdown = await getMarkdown(id);
+    markdown = await getMarkdown(id);
     if (markdown) {
       initialContent = markdown.content;
     } else {
@@ -84,6 +88,7 @@ export default async function ViewPage({ searchParams }: PageProps) {
       <ViewClient
         id={typeof id === "string" ? id : ""}
         initialContent={initialContent}
+        initialTitle={markdown?.title}
         initialError={error}
       />
     </Suspense>
