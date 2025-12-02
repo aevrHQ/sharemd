@@ -42,7 +42,7 @@ const Loader: React.FC<{ loading: boolean; className?: string }> = ({
             scale: 0,
           }}
         >
-          <LoaderIcon className={cn("icon animate-spin", className)} />
+          <LoaderIcon className={cn("icon w-6 h-6 animate-spin", className)} />
         </motion.div>
       )}
     </AnimatePresence>
