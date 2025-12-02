@@ -68,13 +68,15 @@ export default function Home() {
     result?: Record<string, unknown>
   ) => {
     if (result && (result as { id: string }).id) {
-      const id = (result as { id: string }).id;
+      const id = (result as { id: string; title?: string }).id;
+      const title =
+        (result as { id: string; title?: string }).title || file.name;
       const url = `${window.location.origin}/view?id=${id}`;
       setGeneratedLinks((prev) => {
         if (prev.some((link) => link.id === id)) return prev;
-        return [...prev, { id, title: file.name, url }];
+        return [...prev, { id, title, url }];
       });
-      saveLink(id, file.name);
+      saveLink(id, title);
       setShowGeneratedLinksDialog(true);
     }
   };
@@ -109,7 +111,10 @@ export default function Home() {
       if (result.success && result.data) {
         const id = result.data.id;
         const url = `${window.location.origin}/view?id=${id}`;
-        const title = titleInput.trim() || "Untitled Markdown";
+        const title =
+          (result as { id: string; title?: string }).title ||
+          titleInput.trim() ||
+          "Untitled Markdown";
         setGeneratedLinks((prev) => [...prev, { id, title, url }]);
         saveLink(id, title);
         setShowGeneratedLinksDialog(true);
