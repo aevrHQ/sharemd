@@ -207,7 +207,18 @@ export default function Editor({
       },
       handlePaste: (view, event) => {
         const text = event.clipboardData?.getData("text/plain");
-        if (text) {
+        const html = event.clipboardData?.getData("text/html");
+
+        // Heuristic: If the clipboard contains rich text (HTML with formatting tags),
+        // we let the editor handle it natively to preserve formatting.
+        // We look for common formatting tags.
+        const isRichText =
+          html &&
+          /<(?:h[1-6]|b|strong|i|em|u|s|strike|ul|ol|li|blockquote|a|img|table|tr|td|th)\b/i.test(
+            html
+          );
+
+        if (text && !isRichText) {
           event.preventDefault();
           Promise.resolve(marked.parse(text)).then((html) => {
             const element = document.createElement("div");
