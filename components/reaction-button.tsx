@@ -135,7 +135,7 @@ export default function ReactionButton({ markdownId }: ReactionButtonProps) {
         </Button>
 
         {showPicker && (
-          <div className="absolute bottom-full right-0 mb-2 z-50 shadow-xl rounded-xl overflow-hidden">
+          <div className="absolute top-full right-0 mt-2 z-50 shadow-xl rounded-xl overflow-hidden">
             <Picker
               data={data}
               onEmojiSelect={(emoji: { native: string }) =>
