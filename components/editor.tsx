@@ -5,6 +5,7 @@ import {
   EditorContent,
   type Editor as EditorType,
 } from "@tiptap/react";
+import { DOMParser as ProseMirrorDOMParser } from "@tiptap/pm/model";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import {
@@ -203,6 +204,22 @@ export default function Editor({
       attributes: {
         class:
           "prose prose-zinc dark:prose-invert max-w-none min-h-[300px] p-4 focus:outline-none",
+      },
+      handlePaste: (view, event) => {
+        const text = event.clipboardData?.getData("text/plain");
+        if (text) {
+          event.preventDefault();
+          Promise.resolve(marked.parse(text)).then((html) => {
+            const element = document.createElement("div");
+            element.innerHTML = html;
+            const slice = ProseMirrorDOMParser.fromSchema(
+              view.state.schema
+            ).parseSlice(element);
+            view.dispatch(view.state.tr.replaceSelection(slice));
+          });
+          return true;
+        }
+        return false;
       },
     },
     onUpdate: ({ editor }) => {
